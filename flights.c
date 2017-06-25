@@ -1,7 +1,7 @@
 /* 
- * CS61C Summer 2013
- * Name:
- * Login:
+ * CS61C Summer 2017
+ * Name: Margo Oka, Michelle Zhang
+ * Login: abp, afe
  */
 
 #include <stdlib.h>
