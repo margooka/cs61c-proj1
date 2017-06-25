@@ -1,6 +1,6 @@
 /* 
  * CS61C Summer 2017
- * Name: Margo Oka, Michelle Zhang
+ * Name: Michelle Zhang, Margo Oka
  * Login: abp, afe
  */
 
@@ -10,16 +10,28 @@
 #include "flights.h"
 #include "timeHM.h"
 
-struct flightSys {
+typedef struct node {
+  int value;
+  struct node *next;
+} node;
+
+struct flightSys_t {
     // Place the members you think are necessary for the flightSys struct here.
+  node* airp;
 };
 
-struct airport {
+struct airport_t {
     // Place the members you think are necessary for the airport struct here.
+  char *name;
+  node *flights;
 };
 
-struct flight {
+struct flight_t {
     // Place the members you think are necessary for the flight struct here.
+  airport_t *dest_airport;
+  timeHM_t arrival;
+  timeHM_t departure;
+  int cost_of_flight;
 };
 
 /*
@@ -37,7 +49,7 @@ static void allocation_failed() {
  */
 flightSys_t* createSystem() {
     // Replace this line with your code
-    return NULL;
+    return (flightSys_t*) malloc(sizeof(struct flightSys_t));
 }
 
 
@@ -47,7 +59,24 @@ flightSys_t* createSystem() {
 
 flight_t* createFlight(airport_t* dest, timeHM_t dep, timeHM_t arr, int c) {
    // Replace this line with your code
-   return NULL;
+   flight_t* temp = (flight_t*) malloc(sizeof(struct flight_t));
+
+   struct flight_t* newFlight;
+
+   newFlight.dest_airport = dest;
+   newFlight.departure = dep;
+   newFlight.arrival = arr;
+   newFlight.cost_of_flight = c;
+
+   newFlight = temp;
+   /////////////
+   /////////////
+   /////////////
+   /// F I X ///
+   /////////////
+   /////////////
+   /////////////
+   return newFlight;
 }
 
 /*
