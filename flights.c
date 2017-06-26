@@ -11,7 +11,7 @@
 #include "timeHM.h"
 
 typedef struct node {
-  int value;
+  struct airport* airp;
   struct node *next;
 } node;
 
@@ -33,6 +33,8 @@ typedef struct flight_t {
   timeHM_t departure;
   int cost_of_flight;
 } flight;
+
+
 
 /*
    This should be called if memory allocation failed.
@@ -72,6 +74,7 @@ flight_t* createFlight(airport_t* dest, timeHM_t dep, timeHM_t arr, int c) {
  */
 void deleteSystem(flightSys_t* s) {
     // Replace this line with your code
+    free(s);
 }
 
 
@@ -81,6 +84,16 @@ void deleteSystem(flightSys_t* s) {
  */
 void addAirport(flightSys_t* s, char* name) {
     // Replace this line with your code
+    node* n = s->airp;
+    while(n != NULL) {
+        n = n->next;
+    }
+    airport* newAirport = (airport*) malloc(sizeof(airport));
+    strcpy(newAirport->name, name);
+    
+    node* newNode;
+    newNode->airp = (struct airport*) newAirport;
+    n->next = newNode;
 }
 
 
