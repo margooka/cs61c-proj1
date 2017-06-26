@@ -15,24 +15,24 @@ typedef struct node {
   struct node *next;
 } node;
 
-struct flightSys_t {
+typedef struct flightSys  {
     // Place the members you think are necessary for the flightSys struct here.
   node* airp;
-};
+} flightSystem;
 
-struct airport_t {
+typedef struct airport_t {
     // Place the members you think are necessary for the airport struct here.
   char *name;
   node *flights;
-};
+} airport;
 
-struct flight_t {
+typedef struct flight_t {
     // Place the members you think are necessary for the flight struct here.
-  airport_t *dest_airport;
+  airport *dest_airport;
   timeHM_t arrival;
   timeHM_t departure;
   int cost_of_flight;
-};
+} flight;
 
 /*
    This should be called if memory allocation failed.
@@ -49,7 +49,7 @@ static void allocation_failed() {
  */
 flightSys_t* createSystem() {
     // Replace this line with your code
-    return (flightSys_t*) malloc(sizeof(struct flightSys_t));
+    return (flightSys_t*) malloc(sizeof(flightSystem));
 }
 
 
@@ -58,25 +58,13 @@ flightSys_t* createSystem() {
 */
 
 flight_t* createFlight(airport_t* dest, timeHM_t dep, timeHM_t arr, int c) {
-   // Replace this line with your code
-   flight_t* temp = (flight_t*) malloc(sizeof(struct flight_t));
+    flight* newFlight = (flight*) malloc(sizeof(flight));
+    newFlight->dest_airport = (airport*) dest;
+    newFlight->departure = dep;
+    newFlight->arrival = arr;
+    newFlight->cost_of_flight = c;
 
-   struct flight_t* newFlight;
-
-   newFlight.dest_airport = dest;
-   newFlight.departure = dep;
-   newFlight.arrival = arr;
-   newFlight.cost_of_flight = c;
-
-   newFlight = temp;
-   /////////////
-   /////////////
-   /////////////
-   /// F I X ///
-   /////////////
-   /////////////
-   /////////////
-   return newFlight;
+    return (flight_t*) newFlight;
 }
 
 /*
