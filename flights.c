@@ -15,6 +15,11 @@ typedef struct node {
   struct node *next;
 } node;
 
+typedef struct node2 {
+  struct flight* flight;
+  struct node2 *next;
+} node2;
+
 typedef struct flightSys  {
     // Place the members you think are necessary for the flightSys struct here.
   node* airp;
@@ -23,7 +28,7 @@ typedef struct flightSys  {
 typedef struct airport_t {
     // Place the members you think are necessary for the airport struct here.
   char *name;
-  node *flights;
+  node2* flights;
 } airport;
 
 typedef struct flight_t {
@@ -103,6 +108,14 @@ void addAirport(flightSys_t* s, char* name) {
  */
 airport_t* getAirport(flightSys_t* s, char* name) {
     // Replace this line with your code
+    node* n = s->airp;
+    while (n != NULL) {
+      airport* a = (airport*)(n->airp);
+      if (strcmp(a->name, name) != 0) {
+        return (airport_t*) n;
+      }
+      n = n->next;
+    }
     return NULL;
 }
 
@@ -114,6 +127,12 @@ airport_t* getAirport(flightSys_t* s, char* name) {
  */
 void printAirports(flightSys_t* s) {
     // Replace this line with your code
+    node* n = s->airp;
+    while(n != NULL) {
+        airport* a = (airport*)(n->airp);
+        printf("%s/n", a->name);
+        n = n->next;
+    }
 }
 
 
@@ -122,6 +141,12 @@ void printAirports(flightSys_t* s) {
  */
 void addFlight(airport_t* src, airport_t* dst, timeHM_t* departure, timeHM_t* arrival, int cost) {
     // Replace this line with your code
+    flight* newFlight = (flight*) createFlight(dst, *departure, *arrival, cost);
+    node2* curFlight = ((airport*)src)->flights;
+    while (curFlight != NULL) {
+      curFlight = curFlight->next;
+    }
+    curFlight->flight = (flight_t*) newFlight;
 }
 
 
@@ -137,6 +162,17 @@ void addFlight(airport_t* src, airport_t* dst, timeHM_t* departure, timeHM_t* ar
  */
 void printSchedule(airport_t* s) {
     // Replace this line with your code
+    airport* a = (airport*)s;
+    printf("%s/n", a->name);
+    node2* n = a->flights;
+    while(n != NULL) {
+        flight* f = (flight*)n->flight;
+        printf("%s ", f->dest_airport->name);
+        printTime(&f->arrival);
+        printTime(&f->departure);
+        printf("$%c/n", f->cost_of_flight);
+        n = n->next;
+    }
 }
 
 
@@ -150,8 +186,56 @@ void printSchedule(airport_t* s) {
 
    Please use the function isAfter() from time.h when comparing two timeHM_t objects.
  */
+
+
 bool getNextFlight(airport_t* src, airport_t* dst, timeHM_t* now, timeHM_t* departure, timeHM_t* arrival, int* cost) {
     // Replace this line with your code
+    node2* flights = ((airport*)src)->flights;
+    int lowest;
+
+    //find number of flights
+    int number_of_flights = 0;
+    if (flights != NULL) {
+      node2* cur = flights;
+      while (cur != NULL) {
+        cur = cur->next;
+        number_of_flights++;
+      }
+
+      //get list of cheapest flights (of the same cost)
+      flight cheapest[number_of_flights];
+
+      cur = flights;
+      int cheapestCounter = 0;
+      while (cur!= NULL) {
+        if (isAfter(departure, now)) {
+          if (lowest > ((flight*)(cur->flight))->cost_of_flight) {
+            flight cheapest [number_of_flights];
+            lowest = ((flight*)(cur->flight))->cost_of_flight;
+            number_of_flights = 0;
+          }
+          if (((flight*)(cur->flight))->cost_of_flight == lowest) {
+            cheapest[cheapestCounter] = *((flight*)(cur->flight));
+            cheapestCounter++;
+          }
+        }
+      }
+
+      //iterate through cheapest flights to find the earliest departing one
+      flight* earliest = &cheapest[0];
+      for (int i = 0; i < cheapestCounter; i++) {
+        if (isAfter(cheapest[i]->departure, earliest->departure)) {
+          earliest = &cheapest[i];
+        }
+      }
+
+      departure = earliest->departure;
+      arrival = earliest->arrival;
+      cost = earliest->cost;
+      return true;
+    }
+
+    
     return false;
 }
 
