@@ -55,11 +55,17 @@ static void allocation_failed() {
    Returns a pointer to the system created.
  */
 flightSys_t* createSystem() {
-    // Replace this line with your code
     flightSys_t* s = (flightSys_t*) malloc(sizeof(flightSys_t));
-    if (s == NULL) {
+    if (!s) {
+        allocation_failed();
+    }
+
+    s->airp = (node*) malloc(sizeof(node));
+    if (!s->airp) {
       allocation_failed();
     }
+    s->airp->airp = NULL;
+    s->airp->next = NULL;
     return s;
 }
 
@@ -95,25 +101,32 @@ void deleteSystem(flightSys_t* s) {
    Do not store "name" (the pointer) as the contents it point to may change.
  */
 void addAirport(flightSys_t* s, char* name) {
-    // Replace this line with your code
-    printf("*************************************Adding airport %s to the system", name);
-    if(s == NULL || name == NULL) {
-        printf("null input");
+    //printf("*************************************Adding airport %s to the system\n", name);
+    if(!s || !name) {
+        printf("null input\n");
         return;
     } 
     node* n = s->airp;
-    while(n != NULL) {
+    while(n->airp != NULL) {
         n = n->next;
     }
+    /* Make a new airport. */
     airport_t* newAirport = (airport_t*) malloc(sizeof(airport_t));
-    if (newAirport == NULL) {
+    if (!newAirport) {
         allocation_failed();
     }
-    strcpy(newAirport->name, name);
+    newAirport->name = strdup(name);
+    newAirport->flights = NULL;    
+    n->airp = newAirport;
     
-    node* newNode = NULL;
-    newNode->airp = newAirport;
-    n->next = newNode;
+    node* nextNode = (node*) malloc(sizeof(node));
+    if (!nextNode) {
+        allocation_failed();
+    }
+    n->next = nextNode;
+    nextNode->next = NULL;
+    nextNode->airp = NULL;
+    
 }
 
 
@@ -141,11 +154,16 @@ airport_t* getAirport(flightSys_t* s, char* name) {
    in flights.out to make sure your formatting is correct.
  */
 void printAirports(flightSys_t* s) {
-    // Replace this line with your code
+    if (!s) {
+      printf("null input\n");
+      return;
+    }
     node* n = s->airp;
-    while(n != NULL) {
+    while(n != NULL) {   
         airport_t* a = n->airp;
-        printf("%s/n", a->name);
+        if (!a) 
+            return;
+        printf("%s\n", a->name);
         n = n->next;
     }
 }
