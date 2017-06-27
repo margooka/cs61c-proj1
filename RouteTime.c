@@ -92,6 +92,7 @@ void calcRouteTimes(flightSys_t* s, FILE* routes) {
    add the airports to the flight system.
  */
 void parseAirports(flightSys_t* s, FILE* airportFile) {
+printf("*************************************Parse airports");	
     char name[MAX_NAME_LEN];
     while(fgets(name, MAX_NAME_LEN, airportFile)) {
 	stripNewLine(name);
