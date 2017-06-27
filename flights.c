@@ -59,10 +59,9 @@ flightSys_t* createSystem() {
     if (!s) {
         allocation_failed();
     }
-
     s->airp = (node*) malloc(sizeof(node));
     if (!s->airp) {
-      allocation_failed();
+        allocation_failed();
     }
     s->airp->airp = NULL;
     s->airp->next = NULL;
@@ -76,15 +75,14 @@ flightSys_t* createSystem() {
 
 flight_t* createFlight(airport_t* dest, timeHM_t dep, timeHM_t arr, int c) {
     flight_t* newFlight = (flight_t*) malloc(sizeof(flight_t));
-    if (newFlight == NULL) {
+    if (!newFlight) {
         allocation_failed();
     }
     newFlight->dest_airport = dest;
     newFlight->departure = dep;
     newFlight->arrival = arr;
     newFlight->cost_of_flight = c;
-
-    return (flight_t*) newFlight;
+    return newFlight;
 }
 
 /*
@@ -101,7 +99,6 @@ void deleteSystem(flightSys_t* s) {
    Do not store "name" (the pointer) as the contents it point to may change.
  */
 void addAirport(flightSys_t* s, char* name) {
-    //printf("*************************************Adding airport %s to the system\n", name);
     if(!s || !name) {
         printf("null input\n");
         return;
@@ -116,7 +113,12 @@ void addAirport(flightSys_t* s, char* name) {
         allocation_failed();
     }
     newAirport->name = strdup(name);
-    newAirport->flights = NULL;    
+    newAirport->flights = (node2*) malloc(sizeof(node2));   
+    if(!newAirport->flights) {
+        allocation_failed();
+    }
+    newAirport->flights->flight = NULL;
+    newAirport->flights->next = NULL;
     n->airp = newAirport;
     
     node* nextNode = (node*) malloc(sizeof(node));
@@ -139,7 +141,10 @@ airport_t* getAirport(flightSys_t* s, char* name) {
     node* n = s->airp;
     while (n != NULL) {
       airport_t* a = n->airp;
-      if (strcmp(a->name, name) != 0) {
+      if (!a) {
+        return NULL;
+      }
+      if (strcmp(a->name, name) == 0) {
         return a;
       }
       n = n->next;
@@ -173,13 +178,19 @@ void printAirports(flightSys_t* s) {
    Adds a flight to src's schedule, stating a flight will leave to dst at departure time and arrive at arrival time.
  */
 void addFlight(airport_t* src, airport_t* dst, timeHM_t* departure, timeHM_t* arrival, int cost) {
-    // Replace this line with your code
-    flight_t* newFlight = createFlight(dst, *departure, *arrival, cost);
-    node2* curFlight = src->flights;
-    while (curFlight != NULL) {
-      curFlight = curFlight->next;
+    flight_t* f = createFlight(dst, *departure, *arrival, cost);
+    node2* n = src->flights;
+    while (n->flight != NULL) {
+        n = n->next;
     }
-    curFlight->flight = newFlight;
+    n->flight = f;
+    node2* nextNode = (node2*) malloc(sizeof(node2));
+    if (!nextNode) {
+        allocation_failed();
+    }
+    n->next = nextNode;
+    nextNode->next = NULL;
+    nextNode->flight = NULL;
 }
 
 
@@ -194,16 +205,19 @@ void addFlight(airport_t* src, airport_t* dst, timeHM_t* departure, timeHM_t* ar
    You should compare your output with the correct output in flights.out to make sure your formatting is correct.
  */
 void printSchedule(airport_t* s) {
-    // Replace this line with your code
-    airport_t* a = s;
-    printf("%s/n", a->name);
-    node2* n = a->flights;
-    while(n != NULL) {
+    if (!s) {
+      printf("null input\n");
+      return;
+    }
+    printf("%s\n", s->name);
+    node2* n = s->flights;
+    while(n->flight != NULL) {
         flight_t* f = n->flight;
         printf("%s ", f->dest_airport->name);
-        printTime(&f->arrival);
         printTime(&f->departure);
-        printf("$%c/n", f->cost_of_flight);
+        printf(" ");
+        printTime(&f->arrival);
+        printf(" $%d\n", f->cost_of_flight);
         n = n->next;
     }
 }
