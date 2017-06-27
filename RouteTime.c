@@ -176,7 +176,7 @@ void timeRoutes(char* airports, char* schedules, char* routes) {
 	return;
     }
     printf("***Parse and echo airports***\n");
-    parseAirports(s,airportFile); 
+    parseAirports(s,airportFile);
     fclose(airportFile);
     printAirports(s);
 
