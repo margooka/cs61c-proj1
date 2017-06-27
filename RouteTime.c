@@ -92,7 +92,7 @@ void calcRouteTimes(flightSys_t* s, FILE* routes) {
    add the airports to the flight system.
  */
 void parseAirports(flightSys_t* s, FILE* airportFile) {
-printf("*************************************Parse airports");	
+printf("*************************************Parse airports\n");	
     char name[MAX_NAME_LEN];
     while(fgets(name, MAX_NAME_LEN, airportFile)) {
 	stripNewLine(name);
@@ -177,6 +177,7 @@ void timeRoutes(char* airports, char* schedules, char* routes) {
 	return;
     }
     printf("***Parse and echo airports***\n");
+    printf("***Parse 2nd echo airports***\n");
     parseAirports(s,airportFile);
     fclose(airportFile);
     printAirports(s);
