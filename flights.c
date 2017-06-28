@@ -94,6 +94,10 @@ flight_t* createFlight(airport_t* dest, timeHM_t dep, timeHM_t arr, int c) {
    Frees all memory associated with this system; that's all memory you dynamically allocated in your code.
  */
 void deleteSystem(flightSys_t* s) {
+    if (!s->airp) {
+        free(s);
+	return;
+    }
     node* n = s->airp;
     while(n) {
         if (!n->airp) {
@@ -110,7 +114,7 @@ void deleteSystem(flightSys_t* s) {
             }    
             else {
               free(n2);
-              n2 = NULL;
+              break;
             }   
         }
         if (n->airp) {
@@ -366,6 +370,10 @@ int validateFlightPath(flight_t** flight_list, char** airport_name_list, int sz)
              return -1;
         }
 
+    }
+    if (!curFlight->cost_of_flight) {
+         printf("VERY BAD\n");
+	return totalCost;
     }
     totalCost += curFlight->cost_of_flight;
     if (strcmp(curFlight->dest_airport->name, curAirportName) == 0) {
