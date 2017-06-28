@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <limits.h>
 #include "flights.h"
 #include "timeHM.h"
 
@@ -236,63 +237,64 @@ void printSchedule(airport_t* s) {
 
 
 bool getNextFlight(airport_t* src, airport_t* dst, timeHM_t* now, timeHM_t* departure, timeHM_t* arrival, int* cost) {
-
-    printf("Get flight leaving from %s and going to %s\n", src->name, dst->name);
-    node2* flights = src->flights;
     
-    //find number of flights
-    int number_of_flights = 0;
-    if (flights != NULL) {
-      node2* cur = flights;
-      while (cur != NULL) {   
-        if(cur->flight) {
-            number_of_flights++;
-        }
-        cur = cur->next;         
-      }
-      //get list of cheapest flights (of the same cost)
-      flight_t * cheapest[number_of_flights];
-      cur = flights;
-      if (!cur->flight) {
+    if (!src || !dst || !now || !departure || !arrival || !cost) {
         return false;
-      }
-      int cheapestCounter = 0;
-      int lowest = cur->flight->cost_of_flight+1;
-
-      while (cur->flight) {
-        //printf("@@@@@@@@@@@@@@@@@@@@@@@\n");
-        if (isAfter(departure, now)) {
-          printf("********************Departure is after now\n");
-          if (lowest > cur->flight->cost_of_flight) {
-            lowest = cur->flight->cost_of_flight;
-            cheapestCounter = 0;
-            printf("Found cheaper flight with cost %d.\n", lowest);
-          }
-          if (cur->flight->cost_of_flight == lowest) {
-            cheapest[cheapestCounter] = cur->flight;
-            cheapestCounter++;
-          }
-        }
-        cur = cur->next;
-      }
-      //iterate through cheapest flights to find the earliest departing one
-      flight_t* earliest = cheapest[0];
-      for (int i = 0; i < cheapestCounter; i++) {
-        if (isAfter(&(earliest->arrival), &(cheapest[i]->arrival))) {
-          earliest = cheapest[i];
-        }
-      }
-      if (!earliest) {
-        printf("BAAAAAAAAAD\n");
-      }
-      *departure = earliest->departure;
-      *arrival = earliest->arrival;
-      *cost = earliest->cost_of_flight;
-      return true;
     }
 
+    //First find the number and cost of the cheapest flight(s)
+    node2 * n = src->flights;
     
-    return false;
+    if (!n || !n->flight) {
+        return false;
+    }
+    int num_c_flights = 0;
+    int c_cost = INT_MAX;
+    while (n->flight) {
+      flight_t * f = n->flight;
+      if (isAfter(&(f->departure), now) && !strcmp(dst->name, f->dest_airport->name)) {
+          if (f->cost_of_flight == c_cost) {
+              num_c_flights++;
+          }
+          if (f->cost_of_flight < c_cost) {
+               
+              num_c_flights = 1;
+              c_cost = f->cost_of_flight;
+          }
+      }
+      n = n->next;
+    }
+    if(num_c_flights == 0) {
+        return false;
+    }
+    //Make an array of the cheapest flight(s) 
+    flight_t * c_flights[num_c_flights];
+    n = src->flights;
+    int i = 0;
+    while (n->flight) {
+      if (c_cost == n->flight->cost_of_flight) {
+          c_flights[i] = n->flight;
+          i++;
+      }
+      n = n->next;
+    }
+
+    flight_t* earliest_flight = c_flights[0];
+    timeHM_t* earliest_arrival = &(c_flights[0]->arrival);
+    for(int k = 0; k < num_c_flights; k++) {
+      flight_t* fi = c_flights[k];
+      if (isAfter(earliest_arrival, &(fi->arrival))) {
+          earliest_arrival = &(fi->arrival);
+          earliest_flight = fi;
+      }
+    }
+
+    *departure = earliest_flight->departure;
+    *arrival = earliest_flight->arrival;
+    *cost = earliest_flight->cost_of_flight;
+
+    return true;
+
 }
 
 /* Given a list of flight_t pointers (flight_list) and a list of destination airport names (airport_name_list), first confirm that it is indeed possible to take these sequences of flights,
@@ -306,7 +308,7 @@ bool getNextFlight(airport_t* src, airport_t* dst, timeHM_t* now, timeHM_t* depa
 */
 int validateFlightPath(flight_t** flight_list, char** airport_name_list, int sz) {
    
-    if(flight_list == NULL || airport_name_list == NULL) {
+    if(!flight_list || !airport_name_list) {
         return -1;
     }
     flight_t* curFlight = *flight_list;  
@@ -315,23 +317,25 @@ int validateFlightPath(flight_t** flight_list, char** airport_name_list, int sz)
         return -1;
     }
     flight_t* nextFlight = *(flight_list + 1);
-    int totalCost = curFlight->cost_of_flight;
+    int totalCost = 0;
     for (int i = 1; i<sz; i++) {
         if (!(isAfter(&(nextFlight->departure), &(curFlight->arrival)) 
             || isEqual(&(nextFlight->departure), &(curFlight->arrival)))) {
             return -1;
         }
-        if (strcmp(curFlight->dest_airport->name, curAirportName)) {
+        if (strcmp(curFlight->dest_airport->name, curAirportName)) {         
             return -1;
         }
         totalCost += curFlight->cost_of_flight;
-        curAirportName = *(airport_name_list + 1);
-        curFlight = nextFlight;
-        nextFlight = (*flight_list + i);
-        if(curFlight == NULL || curAirportName == NULL) {
+
+        curAirportName = curAirportName + 4;     
+        curFlight++;
+        nextFlight++;
+        if(!curFlight || !curAirportName) {
              return -1;
         }
     }
+    totalCost += curFlight->cost_of_flight;
     if (strcmp(curFlight->dest_airport->name, curAirportName) == 0) {
         return totalCost;
     }
