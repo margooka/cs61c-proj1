@@ -236,48 +236,58 @@ void printSchedule(airport_t* s) {
 
 
 bool getNextFlight(airport_t* src, airport_t* dst, timeHM_t* now, timeHM_t* departure, timeHM_t* arrival, int* cost) {
-    // Replace this line with your code
-    node2* flights = src->flights;
-    int lowest;
 
+    printf("Get flight leaving from %s and going to %s\n", src->name, dst->name);
+    node2* flights = src->flights;
+    
     //find number of flights
     int number_of_flights = 0;
     if (flights != NULL) {
       node2* cur = flights;
-      while (cur != NULL) {
-        cur = cur->next;
-        number_of_flights++;
+      while (cur != NULL) {   
+        if(cur->flight) {
+            number_of_flights++;
+        }
+        cur = cur->next;         
       }
-
       //get list of cheapest flights (of the same cost)
-      flight_t cheapest[number_of_flights];
-
+      flight_t * cheapest[number_of_flights];
       cur = flights;
+      if (!cur->flight) {
+        return false;
+      }
       int cheapestCounter = 0;
-      while (cur!= NULL) {
+      int lowest = cur->flight->cost_of_flight+1;
+
+      while (cur->flight) {
+        //printf("@@@@@@@@@@@@@@@@@@@@@@@\n");
         if (isAfter(departure, now)) {
+          printf("********************Departure is after now\n");
           if (lowest > cur->flight->cost_of_flight) {
             lowest = cur->flight->cost_of_flight;
-            number_of_flights = 0;
+            cheapestCounter = 0;
+            printf("Found cheaper flight with cost %d.\n", lowest);
           }
           if (cur->flight->cost_of_flight == lowest) {
-            cheapest[cheapestCounter] = *(cur->flight);
+            cheapest[cheapestCounter] = cur->flight;
             cheapestCounter++;
           }
         }
+        cur = cur->next;
       }
-
       //iterate through cheapest flights to find the earliest departing one
-      flight_t* earliest = &cheapest[0];
+      flight_t* earliest = cheapest[0];
       for (int i = 0; i < cheapestCounter; i++) {
-        if (isAfter(&cheapest[i].departure, &(earliest->departure))) {
-          earliest = &cheapest[i];
+        if (isAfter(&(earliest->arrival), &(cheapest[i]->arrival))) {
+          earliest = cheapest[i];
         }
       }
-
-      departure = &(earliest->departure);
-      arrival = &(earliest->arrival);
-      cost = &(earliest->cost_of_flight);
+      if (!earliest) {
+        printf("BAAAAAAAAAD\n");
+      }
+      *departure = earliest->departure;
+      *arrival = earliest->arrival;
+      *cost = earliest->cost_of_flight;
       return true;
     }
 
