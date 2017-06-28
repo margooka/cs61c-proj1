@@ -75,6 +75,10 @@ flightSys_t* createSystem() {
 */
 
 flight_t* createFlight(airport_t* dest, timeHM_t dep, timeHM_t arr, int c) {
+    if (!dest) {
+        printf("null input\n");
+        return NULL;  
+    }
     flight_t* newFlight = (flight_t*) malloc(sizeof(flight_t));
     if (!newFlight) {
         allocation_failed();
@@ -90,7 +94,33 @@ flight_t* createFlight(airport_t* dest, timeHM_t dep, timeHM_t arr, int c) {
    Frees all memory associated with this system; that's all memory you dynamically allocated in your code.
  */
 void deleteSystem(flightSys_t* s) {
-    // Replace this line with your code
+    node* n = s->airp;
+    while(n) {
+        if (!n->airp) {
+          free(n);
+          break;
+        } 
+        node2* n2 = n->airp->flights;
+        while(n2) {
+            if (n2->flight) {
+                free(n2->flight);
+                node2* temp2 = n2->next;
+                free(n2);
+                n2 = temp2;
+            }    
+            else {
+              free(n2);
+              n2 = NULL;
+            }   
+        }
+        if (n->airp) {
+            free(n->airp);
+            node* temp = n->next;
+            free(n);
+            n = temp;
+        }    
+           
+    }
     free(s);
 }
 
@@ -105,7 +135,7 @@ void addAirport(flightSys_t* s, char* name) {
         return;
     } 
     node* n = s->airp;
-    while(n->airp != NULL) {
+    while(n->airp) {
         n = n->next;
     }
     /* Make a new airport. */
@@ -319,6 +349,7 @@ int validateFlightPath(flight_t** flight_list, char** airport_name_list, int sz)
     flight_t* nextFlight = *(flight_list + 1);
     int totalCost = 0;
     for (int i = 1; i<sz; i++) {
+
         if (!(isAfter(&(nextFlight->departure), &(curFlight->arrival)) 
             || isEqual(&(nextFlight->departure), &(curFlight->arrival)))) {
             return -1;
@@ -334,9 +365,11 @@ int validateFlightPath(flight_t** flight_list, char** airport_name_list, int sz)
         if(!curFlight || !curAirportName) {
              return -1;
         }
+
     }
     totalCost += curFlight->cost_of_flight;
     if (strcmp(curFlight->dest_airport->name, curAirportName) == 0) {
+      
         return totalCost;
     }
     return -1;
