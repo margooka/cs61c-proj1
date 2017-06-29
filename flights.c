@@ -354,6 +354,7 @@ int validateFlightPath(flight_t** flight_list, char** airport_name_list, int sz)
     int totalCost = 0;
     for (int i = 1; i<sz; i++) {
 
+        //impossible route
         if (!(isAfter(&(nextFlight->departure), &(curFlight->arrival)) 
             || isEqual(&(nextFlight->departure), &(curFlight->arrival)))) {
             return -1;
@@ -361,11 +362,16 @@ int validateFlightPath(flight_t** flight_list, char** airport_name_list, int sz)
         if (strcmp(curFlight->dest_airport->name, curAirportName)) {         
             return -1;
         }
+        ///////////////
+
+
         totalCost += curFlight->cost_of_flight;
 
-        curAirportName = curAirportName + 4;     
-        curFlight++;
-        nextFlight++;
+        curAirportName = curAirportName + 4;
+        printf("cost of flight %d\n",curFlight->cost_of_flight);
+        printf("cost of new fligh %d\n",nextFlight->cost_of_flight);     
+        curFlight = nextFlight;
+        nextFlight = curFlight + 1;
         if(!curFlight || !curAirportName) {
              return -1;
         }
