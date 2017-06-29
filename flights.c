@@ -118,7 +118,8 @@ void deleteSystem(flightSys_t* s) {
             }   
         }
         if (n->airp) {
-            free(n->airp);
+            free(n->airp->name);
+            free(n->airp);  
             node* temp = n->next;
             free(n);
             n = temp;
