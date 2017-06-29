@@ -22,18 +22,15 @@ typedef struct node2 {
 } node2;
 
 struct flightSys  {
-    // Place the members you think are necessary for the flightSys struct here.
   node* airp;
 };
 
 struct airport {
-    // Place the members you think are necessary for the airport struct here.
   char * name;
   node2 * flights;
 };
 
 struct flight {
-    // Place the members you think are necessary for the flight struct here.
   airport_t *dest_airport;
   timeHM_t arrival;
   timeHM_t departure;
@@ -96,7 +93,7 @@ flight_t* createFlight(airport_t* dest, timeHM_t dep, timeHM_t arr, int c) {
 void deleteSystem(flightSys_t* s) {
     if (!s->airp) {
         free(s);
-	return;
+	      return;
     }
     node* n = s->airp;
     while(n) {
@@ -136,7 +133,6 @@ void deleteSystem(flightSys_t* s) {
  */
 void addAirport(flightSys_t* s, char* name) {
     if(!s || !name) {
-        //printf("null input\n");
         return;
     } 
     node* n = s->airp;
@@ -151,15 +147,7 @@ void addAirport(flightSys_t* s, char* name) {
     }
 
     newAirport->name = strdup(name);
-    //if (!newAirport->name) {
-    //  allocation_failed();
-    //}
-
-    //newAirport->name = (char*) malloc(3*sizeof(char));
-    //strcpy(newAirport->name, name);
-
     newAirport->flights = (node2*) malloc(sizeof(node2));
-
 
     if(!newAirport->flights) {
         allocation_failed();
@@ -184,7 +172,6 @@ void addAirport(flightSys_t* s, char* name) {
    If the airport doesn't exist, return NULL.
  */
 airport_t* getAirport(flightSys_t* s, char* name) {
-    // Replace this line with your code
     node* n = s->airp;
     while (n != NULL) {
       airport_t* a = n->airp;
@@ -365,8 +352,6 @@ int validateFlightPath(flight_t** flight_list, char** airport_name_list, int sz)
     flight_t* nextFlight = *(flight_list + 1);
     int totalCost = 0;
     for (int i = 1; i<sz; i++) {
-
-        //impossible route
         if (!(isAfter(&(nextFlight->departure), &(curFlight->arrival)) 
             || isEqual(&(nextFlight->departure), &(curFlight->arrival)))) {
             return -1;
@@ -374,24 +359,14 @@ int validateFlightPath(flight_t** flight_list, char** airport_name_list, int sz)
         if (strcmp(curFlight->dest_airport->name, curAirportName)) {         
             return -1;
         }
-        ///////////////
-
-
         totalCost += curFlight->cost_of_flight;
-
-        curAirportName = curAirportName + 4;
-  //printf("cost of flight %d\n",curFlight->cost_of_flight);
-  //printf("cost of new fligh %d\n",nextFlight->cost_of_flight);     
+        curAirportName = curAirportName + 4;  
         curFlight = nextFlight;
         nextFlight = curFlight + 1;
         if(!curFlight || !curAirportName) {
              return -1;
         }
 
-    }
-    if (!curFlight->cost_of_flight) {
-         printf("VERY BAD\n");
-	return totalCost;
     }
     totalCost += curFlight->cost_of_flight;
     if (strcmp(curFlight->dest_airport->name, curAirportName) == 0) {
