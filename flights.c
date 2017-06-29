@@ -12,13 +12,13 @@
 #include "timeHM.h"
 
 typedef struct node {
-  struct airport* airp;
-  struct node *next;
+  struct airport * airp;
+  struct node * next;
 } node;
 
 typedef struct node2 {
-  struct flight* flight;
-  struct node2 *next;
+  struct flight * flight;
+  struct node2 * next;
 } node2;
 
 struct flightSys  {
@@ -28,8 +28,8 @@ struct flightSys  {
 
 struct airport {
     // Place the members you think are necessary for the airport struct here.
-  char *name;
-  node2* flights;
+  char * name;
+  node2 * flights;
 };
 
 struct flight {
@@ -145,10 +145,21 @@ void addAirport(flightSys_t* s, char* name) {
     /* Make a new airport. */
     airport_t* newAirport = (airport_t*) malloc(sizeof(airport_t));
     if (!newAirport) {
+      
         allocation_failed();
     }
+
     newAirport->name = strdup(name);
-    newAirport->flights = (node2*) malloc(sizeof(node2));   
+    //if (!newAirport->name) {
+    //  allocation_failed();
+    //}
+
+    //newAirport->name = (char*) malloc(3*sizeof(char));
+    //strcpy(newAirport->name, name);
+
+    newAirport->flights = (node2*) malloc(sizeof(node2));
+
+
     if(!newAirport->flights) {
         allocation_failed();
     }
@@ -368,8 +379,8 @@ int validateFlightPath(flight_t** flight_list, char** airport_name_list, int sz)
         totalCost += curFlight->cost_of_flight;
 
         curAirportName = curAirportName + 4;
-        printf("cost of flight %d\n",curFlight->cost_of_flight);
-        printf("cost of new fligh %d\n",nextFlight->cost_of_flight);     
+  //printf("cost of flight %d\n",curFlight->cost_of_flight);
+  //printf("cost of new fligh %d\n",nextFlight->cost_of_flight);     
         curFlight = nextFlight;
         nextFlight = curFlight + 1;
         if(!curFlight || !curAirportName) {
