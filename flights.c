@@ -135,7 +135,7 @@ void deleteSystem(flightSys_t* s) {
  */
 void addAirport(flightSys_t* s, char* name) {
     if(!s || !name) {
-        printf("null input\n");
+        //printf("null input\n");
         return;
     } 
     node* n = s->airp;
